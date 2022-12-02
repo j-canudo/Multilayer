@@ -26,6 +26,10 @@ classdef multicapa < handle
             obj.esp = espesores;
         end
 
+        function set.n(obj,valor)
+            obj.n = valor;
+        end
+
         function set.lambda(obj,valor)
             obj.lambda = valor;
         end
@@ -56,13 +60,13 @@ classdef multicapa < handle
         function val = calculo_TE(obj,num_capa)
             A = [1 1; -obj.n_x(num_capa) obj.n_x(num_capa)];
             B = [1 1; -obj.n_x(num_capa+1) obj.n_x(num_capa+1)];
-            val = inv(A)*B;
+            val = pinv(A)*B;
         end
 
         function val = calculo_TM(obj,num_capa)
             A = [1 1; -obj.n_x(num_capa)/obj.n(num_capa)^2 obj.n_x(num_capa)/obj.n(num_capa)^2];
             B = [1 1; -obj.n_x(num_capa+1)/obj.n(num_capa+1)^2 obj.n_x(num_capa+1)/obj.n(num_capa+1)^2];
-            val = inv(A)*B;
+            val = pinv(A)*B;
         end
 
         function val = calculo_P(obj,num_capa)
@@ -71,27 +75,27 @@ classdef multicapa < handle
 
         function val = calculo_MTE(obj)
             val = [1 0;0 1];
-            if obj.numero_capas == 1
+            if obj.numero_capas == 0
                 val = calculo_TE(obj,1);
             else
                 for i=1:obj.numero_capas
-                    val = val*calculo_TE(obj,i);
-                    val = val*calculo_P(obj,i);
+                    val = val*calculo_TE(obj,obj.numero_capas+2-i);
+                    val = val*calculo_P(obj,obj.numero_capas+1-i);
                 end
-                val = val*calculo_TE(obj,i+1);
+                val = val*calculo_TE(obj,1);
             end
         end
 
         function val = calculo_MTM(obj)
             val = [1 0;0 1];
-            if obj.numero_capas == 1
+            if obj.numero_capas == 0
                 val = calculo_TM(obj,1);
             else
                 for i=1:obj.numero_capas
-                    val = val*calculo_TM(obj,i);
-                    val = val*calculo_P(obj,i);
+                    val = val*calculo_TM(obj,obj.numero_capas+2-i);
+                    val = val*calculo_P(obj,obj.numero_capas+1-i);
                 end
-                val = val*calculo_TM(obj,i+1);
+                val = val*calculo_TM(obj,1);
             end
         end
         
